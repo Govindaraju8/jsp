@@ -1,0 +1,170 @@
+package com.govind;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DALclass {
+	Connection conn = null;
+	Statement st = null;
+	String qry, cs;
+	ResultSet rst;
+	public ArrayList<emp> fetchRecords()
+	{
+		ArrayList<emp> l1=new ArrayList<>();
+		try {
+			String url="jdbc:postgresql://localhost:5432/postgres";
+			String user="postgres";
+			String password="Postgres";
+			Class.forName("org.postgresql.Driver");
+			conn=DriverManager.getConnection(url,user,password);
+			st = conn.createStatement();
+			qry = "select * from emp";
+			rst = st.executeQuery(qry);
+			while(rst.next()) {
+				int empno = rst.getInt("empid");
+				String ename = rst.getString("ename");
+				String job = rst.getString("jobrole");
+				double salary=rst.getDouble("sal");
+				emp e = new emp(empno, ename, job, salary);
+				l1.add(e);
+			}
+			st.close();
+			conn.close();
+			rst.close();
+		}catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return l1;	
+	}
+}
+
+
+/***********************************************************************************************************/
+
+
+
+package com.govind;
+
+public class emp {
+    private int empid;
+    private String ename;
+    private String jobrole;
+    private double sal;
+
+    public emp(int empid, String ename, String jobrole, double sal) {
+        this.empid = empid;
+        this.ename = ename;
+        this.jobrole = jobrole;
+        this.sal = sal;
+    }
+
+    // Getter and Setter methods for empid
+    public int getEmpid() {
+        return empid;
+    }
+
+    public void setEmpid(int empid) {
+        this.empid = empid;
+    }
+
+    // Getter and Setter methods for ename
+    public String getEname() {
+        return ename;
+    }
+
+    public void setEname(String ename) {
+        this.ename = ename;
+    }
+
+    // Getter and Setter methods for jobrole
+    public String getJobrole() {
+        return jobrole;
+    }
+
+    public void setJobrole(String jobrole) {
+        this.jobrole = jobrole;
+    }
+
+    // Getter and Setter methods for sal
+    public double getSal() {
+        return sal;
+    }
+
+    public void setSal(double sal) {
+        this.sal = sal;
+    }
+}
+
+
+/*************************************************************************************/
+
+package com.govind;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/TableServlet")
+public class TableServlet extends HttpServlet {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		//response.getWriter().append("Served at: ").append(request.getContextPath());
+		RequestDispatcher RD = null;
+		try {
+			DALclass dal = new DALclass();
+			ArrayList<emp> al = dal.fetchRecords();
+			request.setAttribute("data", al);
+			RD = request.getRequestDispatcher("Employee.jsp");
+			RD.forward(request, response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+}
+
+/********************************************************************************************************/
+
+<%@ page language="java" import="java.io.*, java.util.*, com.govind.*" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Employee details form</title>
+</head>
+<body>
+    <table border="1">
+        <tr>
+            <th>Emp ID</th>
+            <th>Name</th>
+            <th>Job Role</th>
+            <th>Salary</th>
+        </tr>
+        <%
+            ArrayList<emp> elist = (ArrayList<emp>) request.getAttribute("data");
+            for (emp empObj : elist) {
+        %>
+        <tr>
+            <td><%= empObj.getEmpid() %></td>
+            <td><%= empObj.getEname() %></td>
+            <td><%= empObj.getJobrole() %></td>
+            <td><%= empObj.getSal() %></td>
+        </tr>
+        <%
+            }
+        %>
+    </table>
+</body>
+</html>
+
