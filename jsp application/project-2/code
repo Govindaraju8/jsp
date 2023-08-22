@@ -1,0 +1,480 @@
+<%@ page language="java" import="java.util.*,java.sql.*,java.io.*" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>self-submission with jsp</title>
+</head>
+<body>
+
+<center>
+<h1> Employee Form</h1>
+<form action="employee.jsp" method="POST">
+<table>
+    <table>
+    <tr>
+    <td><i>Mode</i></td>
+    <td><b>:</b></td>
+    <td><input type="text" name="mode" id="mode"></td>
+    </tr>
+    <tr>
+        <td><i>Employee No</i></td>
+        <td><b>:</b></td>
+        <td><input type="number" name="empno" id="eno"></td>
+    </tr>
+    <tr>
+        <td><i>Name</i></td>
+        <td><b>:</b></td>
+        <td><input type="text" name="name" id="ename" onkeydown="return /[a-z]/i.test(event.key)"></td>
+    </tr>
+    <tr>
+        <td><i>Job</i></td>
+        <td><b>:</b></td>
+        <td><input type="text" name="job" id="ejob" onkeydown="return /[a-z]/i.test(event.key)"></td>
+    </tr>
+    <tr>
+        <td><i>Salary</i></td>
+        <td><b>:</b></td>
+        <td><input type="number" name="salary" id="esal"></td>
+    </tr>
+    <tr>
+        <td><i>Department</i></td>
+        <td><b>:</b></td>
+        <td><input type="text" name="dept" id="edept" onkeydown="return /[a-z]/i.test(event.key)"></td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td colspan="4">
+            <input type="submit" value="First" name="action" class="button-style">
+            <input type="submit" value="Last" name="action" class="button-style">
+            <input type="submit" value="Prev" name="action" class="button-style">
+            <input type="submit" value="Next" name="action" class="button-style">
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <input type="submit" value="Add" name="action" class="button-style">
+            <input type="submit" value="Edit" name="action" class="button-style">
+            <input type="submit" value="Delete" name="action" class="button-style">
+            <input type="submit" value="Search" name="action" class="button-style">
+        </td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td><input type="submit" value="Save" name="action" class="button-style"></td>
+        <td><input type="button" value="Clear" name="clear" onclick="clearfun()" class="button-style"></td>
+        <td><input type="button" value="Exit" name="exit" onclick="exitfun()" class="button-style exit-button"></td>
+    </tr>
+</table>
+    
+</table>
+
+</form> 
+</center>
+<% 
+    String mode=(String)request.getParameter("mode");
+      Connection cn = null;
+    try{
+    	
+    	String url = "jdbc:postgresql://192.168.110.48:5432/plf_training";
+		String username = "plf_training_admin";
+		String password = "pff123";
+		Class.forName("org.postgresql.Driver");
+
+		 cn = DriverManager.getConnection(url, username, password);
+
+		Integer rowindex = (Integer) session.getAttribute("rowindex");   
+	    if (rowindex == null) {
+	        rowindex = 0;
+	    }
+		String action = request.getParameter("action");
+	    if ("First".equals(action)) {
+    		%>
+            <!-- Embedded JavaScript to clear form fields -->
+            <script>
+                document.getElementById("mode").value = "view";
+               
+            </script>
+            <%
+    		
+	        String selectQuery = "SELECT * FROM Employee789 LIMIT 1";
+	        Statement statement = cn.createStatement();
+	        ResultSet rst = statement.executeQuery(selectQuery);
+	        
+	        if (rst.next()) {
+	            int empNo = rst.getInt("empno");
+	            String name = rst.getString("empname");
+	            String job = rst.getString("job");
+	            double salary = rst.getDouble("salary");
+	            String dept = rst.getString("department");
+	            session.setAttribute("rowindex", rowindex);
+	            %>
+	            <script>
+	                document.getElementById("eno").value = <%= empNo %>;
+	                document.getElementById("ename").value = '<%= name %>';
+	                document.getElementById("ejob").value = '<%= job %>';
+	                document.getElementById("esal").value = <%= salary %>;
+	                document.getElementById("edept").value = '<%= dept %>';
+	            </script>
+	         <%
+	            
+	        }
+	        
+	        
+	    } else if ("Last".equals(action)) {
+    		%>
+            <!-- Embedded JavaScript to clear form fields -->
+            <script>
+                document.getElementById("mode").value = "view";
+               
+            </script>
+            <%
+    		
+	        // Query to fetch the last record from the database
+	        String selectQuery = "SELECT * FROM Employee789 ORDER BY empno DESC LIMIT 1";
+	        Statement statement = cn.createStatement();
+	        ResultSet rst = statement.executeQuery(selectQuery);
+	        
+	        if (rst.next()) {
+	            int empNo = rst.getInt("empno");
+	            String name = rst.getString("empname");
+	            String job = rst.getString("job");
+	            double salary = rst.getDouble("salary");
+	            String dept = rst.getString("department");
+	            session.setAttribute("rowindex", rowindex);
+	            %>
+	            <!-- Embedded JavaScript to update form fields with fetched data -->
+	            <script>
+	                document.getElementById("eno").value = <%= empNo %>;
+	                document.getElementById("ename").value = '<%= name %>';
+	                document.getElementById("ejob").value = '<%= job %>';
+	                document.getElementById("esal").value = <%= salary %>;
+	                document.getElementById("edept").value = '<%= dept %>';
+	            </script>
+	            <%
+	        }
+	        
+	        rst.close();
+	        statement.close();
+	    }
+	    else if ("Prev".equals(action)) {
+	    	
+    		%>
+            <!-- Embedded JavaScript to clear form fields -->
+            <script>
+                document.getElementById("mode").value = "view";
+               
+            </script>
+            <%
+    		
+	        if (rowindex > 0) {
+	            rowindex--; // Move to the previous index
+	            session.setAttribute("rowindex", rowindex);
+	        }
+	        
+	        // Query to fetch the record at the updated index
+	        String selectQuery = "SELECT * FROM Employee789 ORDER BY empno LIMIT 1 OFFSET " + rowindex;
+	        Statement statement = cn.createStatement();
+	        ResultSet rst = statement.executeQuery(selectQuery);
+	        
+	        if (rst.next()) {
+	            int empNo = rst.getInt("empno");
+	            String name = rst.getString("empname");
+	            String job = rst.getString("job");
+	            double salary = rst.getDouble("salary");
+	            String dept = rst.getString("department");
+	            %>
+	            <!-- Embedded JavaScript to update form fields with fetched data -->
+	            <script>
+	                document.getElementById("eno").value = <%= empNo %>;
+	                document.getElementById("ename").value = '<%= name %>';
+	                document.getElementById("ejob").value = '<%= job %>';
+	                document.getElementById("esal").value = <%= salary %>;
+	                document.getElementById("edept").value = '<%= dept %>';
+	            </script>
+	            <%
+	        }
+	        
+	        rst.close();
+	        statement.close();
+	    }
+	    else if ("Next".equals(action)) {
+
+    		
+    		%>
+            <!-- Embedded JavaScript to clear form fields -->
+            <script>
+                document.getElementById("mode").value = "view";
+               
+            </script>
+            <%
+	        rowindex++; // Move to the next index
+	        session.setAttribute("rowindex", rowindex);
+	        
+	        // Query to fetch the record at the updated index
+	        String selectQuery = "SELECT * FROM Employee789 ORDER BY empno LIMIT 1 OFFSET " + rowindex;
+	        Statement statement = cn.createStatement();
+	        ResultSet rst = statement.executeQuery(selectQuery);
+	        
+	        if (rst.next()) {
+	            int empNo = rst.getInt("empno");
+	            String name = rst.getString("empname");
+	            String job = rst.getString("job");
+	            double salary = rst.getDouble("salary");
+	            String dept = rst.getString("department");
+	            %>
+	            <!-- Embedded JavaScript to update form fields with fetched data -->
+	            <script>
+	                document.getElementById("eno").value = <%= empNo %>;
+	                document.getElementById("ename").value = '<%= name %>';
+	                document.getElementById("ejob").value = '<%= job %>';
+	                document.getElementById("esal").value = <%= salary %>;
+	                document.getElementById("edept").value = '<%= dept %>';
+	            </script>
+	            <%
+	        }
+	        
+	        rst.close();
+	        statement.close();
+	    }
+	    else if ("Search".equals(action)) {
+    	
+    		%>
+            <!-- Embedded JavaScript to clear form fields -->
+            <script>
+                document.getElementById("mode").value = "view";
+               
+            </script>
+            <%
+	        // Get the employee number to search for
+	        String empNoStr = request.getParameter("empno");
+	        if (empNoStr != null && !empNoStr.isEmpty()) {
+	            int searchEmpNo = Integer.parseInt(empNoStr);
+	            
+	            // Query to fetch the record based on the empno
+	            String selectQuery = "SELECT * FROM Employee789 WHERE empno = " + searchEmpNo;
+	            Statement statement = cn.createStatement();
+	            ResultSet rst = statement.executeQuery(selectQuery);
+	            
+	            if (rst.next()) {
+	                int empNo = rst.getInt("empno");
+	                String name = rst.getString("empname");
+	                String job = rst.getString("job");
+	                double salary = rst.getDouble("salary");
+	                String dept = rst.getString("department");
+	                
+	                // Update rowindex to match the found record
+	                session.setAttribute("rowindex", rowindex);
+	                %>
+	                <!-- Embedded JavaScript to update form fields with fetched data -->
+	                <script>
+	                    document.getElementById("eno").value = <%= empNo %>;
+	                    document.getElementById("ename").value = '<%= name %>';
+	                    document.getElementById("ejob").value = '<%= job %>';
+	                    document.getElementById("esal").value = <%= salary %>;
+	                    document.getElementById("edept").value = '<%= dept %>';
+	                </script>
+	                <%
+	            } else {
+	                // No record found, clear form fields
+	                %>
+	                <!-- Embedded JavaScript to clear form fields -->
+	                <script>
+	                    document.getElementById("eno").value = "";
+	                    document.getElementById("ename").value = "";
+	                    document.getElementById("ejob").value = "";
+	                    document.getElementById("esal").value = "";
+	                    document.getElementById("edept").value = "";
+	                </script>
+	                <%
+	            }
+	            
+	            rst.close();
+	            statement.close();
+	        }
+	    }
+	    else if ("Add".equals(action)) 
+	    {
+	    	
+	    	mode = "add";
+	        session.setAttribute("mode", mode);
+	    		%>
+                <!-- Embedded JavaScript to clear form fields -->
+                <script>
+                    document.getElementById("mode").value = "add";
+                   
+                </script>
+                <%
+	    		
+	    		
+	    }
+	    else if ("Delete".equals(action)) {
+	    	// Set the mode to "delete"
+	        session.setAttribute("mode", "delete");
+	        
+	        // Get the values of the fields
+	        int empno = Integer.parseInt(request.getParameter("empno"));
+	        String name = request.getParameter("name");
+	        String job = request.getParameter("job");
+	        double salary = Double.parseDouble(request.getParameter("salary"));
+	        String dept = request.getParameter("dept");
+
+	        // Display the values in the form fields using JavaScript
+	        %>
+	        <!-- Embedded JavaScript to display the values in the form fields -->
+	        <script>
+	            document.getElementById("mode").value = "delete";
+	            document.getElementById("eno").value = <%= empno %>;
+	            document.getElementById("ename").value = '<%= name %>';
+	            document.getElementById("ejob").value = '<%= job %>';
+	            document.getElementById("esal").value = <%= salary %>;
+	            document.getElementById("edept").value = '<%= dept %>';
+	        </script>
+	        <%
+	    	/*
+	        session.setAttribute("mode", "delete");
+	        int empno = Integer.parseInt(request.getParameter("empno"));
+	        String name = request.getParameter("name");
+	        String job = request.getParameter("job");
+	        double salary = Double.parseDouble(request.getParameter("salary"));
+	        String dept = request.getParameter("dept");
+
+	        
+	        
+	        session.setAttribute("mode", "delete");
+	        int empno = Integer.parseInt(request.getParameter("empno"));
+	        String name = request.getParameter("name");
+	        String job = request.getParameter("job");
+	        double salary = Double.parseDouble(request.getParameter("salary"));
+	        String dept = request.getParameter("dept");
+
+	        try {
+	            String deleteQuery = "DELETE FROM Employee789 WHERE empno=?";
+	            PreparedStatement deleteStatement = cn.prepareStatement(deleteQuery);
+	            deleteStatement.setInt(1, empno);
+	            int deletedRows = deleteStatement.executeUpdate();
+	            deleteStatement.close();
+
+	            if (deletedRows > 0) {
+	                // Deleted successfully
+	                System.out.println("Employee record deleted: " + empno);
+	            } else {
+	                // No rows were deleted (record not found)
+	                System.out.println("Employee record not found for deletion: " + empno);
+	            }
+	        } catch (SQLException e) {
+	            // Handle the exception
+	            e.printStackTrace();
+	        }*/
+	       
+	    }
+
+	    else if("Edit".equals(action))
+	    {
+	    	mode = "edit";
+	        session.setAttribute("mode", mode);
+	        
+	     // Get the values of the fields
+	        int empno = Integer.parseInt(request.getParameter("empno"));
+	        String name = request.getParameter("name");
+	        String job = request.getParameter("job");
+	        double salary = Double.parseDouble(request.getParameter("salary"));
+	        String dept = request.getParameter("dept");
+
+	        // Display the values in the form fields using JavaScript
+	        %>
+	        <!-- Embedded JavaScript to display the values in the form fields -->
+	        <script>
+	            document.getElementById("mode").value = "edit";
+	            document.getElementById("eno").value = <%= empno %>;
+	            document.getElementById("ename").value = '<%= name %>';
+	            document.getElementById("ejob").value = '<%= job %>';
+	            document.getElementById("esal").value = <%= salary %>;
+	            document.getElementById("edept").value = '<%= dept %>';
+	        </script>
+	        <%
+
+	    	
+	    }
+	    else if("Save".equals(action))
+	    {
+	    	 int empNo = Integer.parseInt(request.getParameter("empno"));
+	         String name = request.getParameter("name");
+	         String job = request.getParameter("job");
+	         double salary = Double.parseDouble(request.getParameter("salary"));
+	         String dept = request.getParameter("dept");
+
+	         if (mode.equals("add")) {
+	             // Perform the database insert here
+	             System.out.println("dgvcfjh");
+	             String insertQuery = "INSERT INTO Employee789(empno, empname, job, salary, department) VALUES (?, ?, ?, ?, ?)";
+	             PreparedStatement insertStatement = cn.prepareStatement(insertQuery);
+	             insertStatement.setInt(1, empNo);
+	             insertStatement.setString(2, name);
+	             insertStatement.setString(3, job);
+	             insertStatement.setDouble(4, salary);
+	             insertStatement.setString(5, dept);
+	             insertStatement.executeUpdate();
+	             insertStatement.close();
+	             //alert("added successfully");
+	         } else if (mode.equals("edit")) {
+	             // Perform the database update here for editing
+	             String updateQuery = "UPDATE Employee789 SET  empname=?, job=?, salary=?, department=? WHERE empno=?";
+	             PreparedStatement updateStatement = cn.prepareStatement(updateQuery);
+	           
+	             updateStatement.setString(1, name);
+	             updateStatement.setString(2, job);
+	             updateStatement.setDouble(3, salary);
+	             updateStatement.setString(4, dept);
+	             updateStatement.setInt(5, empNo);
+	             updateStatement.executeUpdate();
+	             updateStatement.close();
+	             //alert("Edited and updated successfully");
+	         } 
+	         else if (mode.equals("delete")) {	   
+	        	 
+	        	        String deleteQuery = "DELETE FROM Employee789 WHERE empno=?";
+	        	        PreparedStatement deleteStatement = cn.prepareStatement(deleteQuery);
+	        	        deleteStatement.setInt(1, empNo);
+	        	        deleteStatement.executeUpdate();
+	        	        deleteStatement.close();
+	        	        //alert("deleted record successfully");
+	         }
+	       }
+    }
+	    catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        try {
+	            if (cn != null) {
+	                cn.close();
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+%>
+
+<script>
+    function clearfun() {
+        // Clear form fields
+        document.getElementById("mode").value = "view";
+        document.getElementById("eno").value = "";
+        document.getElementById("ename").value = "";
+        document.getElementById("ejob").value = "";
+        document.getElementById("esal").value = "";
+        document.getElementById("edept").value = "";
+    }
+
+    function exitfun() {
+        // Redirect to another page or perform any other desired action
+        // For example: window.location.href = "exit_page.jsp";
+        window.close();
+       // alert("Exiting the application...");
+    }
+</script>
+</body>
+</html>
